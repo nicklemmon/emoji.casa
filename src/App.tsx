@@ -78,7 +78,9 @@ function EmojiForm() {
 }
 
 function EmojiResults({ data, searchStr }: { data: TEmoji[]; searchStr: string }) {
-  const filteredData = matchSorter(data, searchStr, { keys: ['unicodeName'] })
+  const filteredData = matchSorter(data, searchStr, { keys: ['unicodeName'] }).filter(
+    (emoji) => !emoji.unicodeName.includes('E0.6'),
+  )
 
   return (
     <div className="flex flex-col gap-8">
