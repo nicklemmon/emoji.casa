@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from 'react-query'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import debounce from 'lodash-es/debounce.js'
 import { twMerge } from 'tailwind-merge'
 import { matchSorter } from 'match-sorter'
@@ -21,7 +21,9 @@ function App() {
       <div className="p-12">
         <div className="w-full flex items-center flex-col">
           <div className="text-center">
-            <h1 className="font-bold drop-shadow text-5xl block text-center mb-2">emoji.casa</h1>
+            <h1 className="font-bold drop-shadow text-5xl block text-center mb-2 -translate-x-3">
+              <span aria-hidden="true">🏠&nbsp;</span>emoji.casa
+            </h1>
 
             <span className="text-lg text-slate-400">quick emoji search!</span>
           </div>
@@ -34,11 +36,21 @@ function App() {
 }
 
 function EmojiForm() {
+  const input = useRef<HTMLInputElement>(null)
   const { status, data } = useEmojiListQuery()
   const [searchStr, setSearchStr] = useState<string | undefined>(undefined)
 
   const handleChange = (e: React.FormEvent<HTMLInputElement>) => {
     setSearchStr((e.target as HTMLInputElement).value)
+  }
+
+  const handleClearClick = () => {
+    setSearchStr(undefined)
+
+    if (input?.current) {
+      input.current.focus()
+      input.current.value = ''
+    }
   }
 
   const debouncedFn = debounce(handleChange, 250)
@@ -50,18 +62,35 @@ function EmojiForm() {
           Search
         </label>
 
-        <input
-          id="search-field"
+        <div
           className={twMerge(
-            'w-full border border-slate-700 text-slate-200 text-lg drop-shadow-lg bg-slate-800 p-4 rounded-lg transition-opacity',
+            'relative w-full border border-slate-700  drop-shadow-lg bg-slate-800 rounded-lg transition-opacity',
             status === 'loading' ? 'cursor-wait opacity-70' : 'opacity-100',
           )}
-          autoFocus
-          disabled={status === 'loading'}
-          type="text"
-          placeholder="e.g., 'smile', 'cry', 'hands'"
-          onChange={debouncedFn}
-        />
+        >
+          <input
+            id="search-field"
+            className={twMerge(
+              'text-slate-200 bg-transparent w-full text-lg p-4 rounded-lg',
+              'focus-visible:ring-4 focus-visible:ring-indigo-400 focus-visible:outline-none',
+            )}
+            ref={input}
+            autoFocus
+            disabled={status === 'loading'}
+            type="text"
+            placeholder="e.g., 'smile', 'cry', 'hands'"
+            onChange={debouncedFn}
+          />
+
+          {searchStr ? (
+            <button
+              className="absolute right-4 top-1/2 -translate-y-1/2"
+              onClick={handleClearClick}
+            >
+              Clear
+            </button>
+          ) : null}
+        </div>
       </div>
 
       {status === 'success' && (
