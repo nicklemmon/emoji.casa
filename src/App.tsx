@@ -18,18 +18,44 @@ const queryClient = new QueryClient()
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <div className="py-12 px-6 md:p-12">
-        <div className="w-full flex items-center flex-col">
-          <div className="text-center">
-            <h1 className="font-bold font-secondary drop-shadow text-5xl block text-center mb-2 -translate-x-3">
-              <span aria-hidden="true">🏠&nbsp;</span>emoji.casa
-            </h1>
+      <div className="min-h-screen">
+        <div className="py-12 px-6 md:p-12">
+          <div className="w-full flex items-center flex-col">
+            <header className="text-center">
+              <h1 className="font-bold font-secondary drop-shadow text-5xl block text-center mb-2 -translate-x-3">
+                <span aria-hidden="true">🏠&nbsp;</span>emoji.casa
+              </h1>
 
-            <span className="text-lg text-slate-400">The home of quick and easy emoji search.</span>
+              <span className="text-lg text-slate-400">
+                The home of quick and easy emoji search.
+              </span>
+            </header>
+
+            <main className="w-full">
+              <EmojiForm />
+            </main>
           </div>
-
-          <EmojiForm />
         </div>
+
+        <footer className="sticky top-[100vh] bg-slate-800 bg-opacity-40 text-center px-6 py-4 md:px-12">
+          <p className="text-lg text-slate-400">
+            Built with{' '}
+            <span aria-label="love" role="img">
+              💌
+            </span>{' '}
+            by{' '}
+            <a
+              className="underline text-indigo-300"
+              href="https://nicklemmon.com"
+              target="_blank"
+              rel="noreferrer noopener"
+            >
+              <span>Nick Lemmon</span>
+              <span className="sr-only">&nbsp;(Opens in a new tab)</span>
+            </a>
+            <span>, all rights reserved {new Date().getFullYear()}</span>
+          </p>
+        </footer>
       </div>
     </QueryClientProvider>
   )
@@ -58,7 +84,7 @@ function EmojiForm() {
   const debouncedFn = debounce(handleChange, 150)
 
   return (
-    <div className="w-full max-w-3xl p-3 md:p-8 flex flex-col gap-3">
+    <div className="mx-auto w-full max-w-3xl p-3 md:p-8 flex flex-col gap-3">
       <div className="flex flex-col gap-2">
         <label htmlFor={inputId} className="text-xl block sr-only">
           Search
@@ -72,7 +98,7 @@ function EmojiForm() {
           <input
             id={inputId}
             className={twMerge(
-              'text-slate-200 bg-transparent w-full text-lg p-4 rounded-lg',
+              'text-slate-200 bg-transparent w-full text-lg p-4 rounded-lg transition-all',
               'focus-visible:ring-4 focus-visible:ring-indigo-400 focus-visible:outline-none',
             )}
             ref={input}
@@ -85,7 +111,11 @@ function EmojiForm() {
 
           {searchStr ? (
             <button
-              className="absolute right-4 top-1/2 -translate-y-1/2"
+              className={twMerge(
+                'px-6 text-sm h-full rounded-br-lg rounded-tr-lg absolute right-0 top-1/2 -translate-y-1/2 transition-all',
+                'hover:bg-slate-700',
+                'focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-indigo-400',
+              )}
               onClick={handleClearClick}
             >
               Clear
@@ -94,17 +124,15 @@ function EmojiForm() {
         </div>
       </div>
 
-      {status === 'success' && (
-        <>
-          {data && searchStr ? (
-            <EmojiResults data={data} searchStr={searchStr} />
-          ) : (
-            <p id={helpId} className="text-center text-lg text-slate-300">
-              No results yet. Type to search emoji by name.
-            </p>
-          )}
-        </>
-      )}
+      {status === 'success' && data && searchStr ? (
+        <EmojiResults data={data} searchStr={searchStr} />
+      ) : null}
+
+      {!searchStr ? (
+        <p id={helpId} className="text-center text-lg text-slate-300">
+          No results yet. Type to search emoji by name.
+        </p>
+      ) : null}
     </div>
   )
 }
