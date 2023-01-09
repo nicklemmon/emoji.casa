@@ -27,7 +27,7 @@ function App() {
               </h1>
 
               <span className="text-lg text-slate-400">
-                The home of quick and easy emoji search.
+                Your home for quick and easy emoji search.
               </span>
             </header>
 
@@ -138,7 +138,7 @@ function EmojiForm() {
 }
 
 /** Certain emoji are repeated due to different versions of available emoji */
-const UNICODE_STR_BLOCKLIST = ['E11.0', 'E13.0', 'E0.6', 'E1.0', 'E0.7', 'E5.0', 'E3.0']
+const UNICODE_STR_BLOCKLIST = ['E4.0', 'E11.0', 'E13.0', 'E0.6', 'E1.0', 'E0.7', 'E5.0', 'E3.0']
 
 /** Filters emoji results by the search string and removes emoji by a lit of hard-coded sub strings */
 function filterEmojiResults(data: TEmoji[], searchStr: string) {
