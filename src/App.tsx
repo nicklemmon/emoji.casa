@@ -1,5 +1,6 @@
 import { QueryClient, QueryClientProvider } from 'react-query'
 import React, { useEffect, useId, useRef, useState } from 'react'
+import { createBrowserRouter, useSearchParams, RouterProvider, Router } from 'react-router-dom'
 import debounce from 'lodash-es/debounce.js'
 import { twMerge } from 'tailwind-merge'
 import { matchSorter } from 'match-sorter'
@@ -7,73 +8,77 @@ import { useEmojiListQuery } from './hooks/api'
 import useCopyToClipboard from './hooks/clipboard'
 import { TEmoji } from './types/api'
 
-/** TODO
- * - [X] Add clear button
- * - [X] Handle undefined result from API - throwing a Zod error right now
- * - [] Move search state to query param in URL
- */
-
 const queryClient = new QueryClient()
 
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <div className="min-h-screen">
-        <div className="py-12 px-6 md:p-12">
-          <div className="w-full flex items-center flex-col">
-            <header className="text-center">
-              <h1 className="font-bold font-secondary drop-shadow text-5xl block text-center mb-2 -translate-x-3">
-                <span aria-hidden="true">🏠&nbsp;</span>emoji.casa
-              </h1>
-
-              <span className="text-lg text-slate-400">
-                Your home for quick and easy emoji search.
-              </span>
-            </header>
-
-            <main className="w-full">
-              <EmojiForm />
-            </main>
-          </div>
-        </div>
-
-        <footer className="sticky top-[100vh] bg-slate-800 bg-opacity-40 text-center px-6 py-4 md:px-12">
-          <p className="text-lg text-slate-400">
-            Built with{' '}
-            <span aria-label="love" role="img">
-              💌
-            </span>{' '}
-            by{' '}
-            <a
-              className="underline text-indigo-300"
-              href="https://nicklemmon.com"
-              target="_blank"
-              rel="noreferrer noopener"
-            >
-              <span>Nick Lemmon</span>
-              <span className="sr-only">&nbsp;(Opens in a new tab)</span>
-            </a>
-            <span>, all rights reserved {new Date().getFullYear()}</span>
-          </p>
-        </footer>
-      </div>
+      <RouterProvider
+        router={createBrowserRouter([{ path: '/', element: <LandingPage /> }])}
+      ></RouterProvider>
     </QueryClientProvider>
   )
 }
 
+function LandingPage() {
+  return (
+    <div className="min-h-screen">
+      <div className="py-12 px-6 md:p-12">
+        <div className="w-full flex items-center flex-col">
+          <header className="text-center">
+            <h1 className="font-bold font-secondary drop-shadow text-4xl md:text-5xl block text-center mb-2 -translate-x-3">
+              <span aria-hidden="true">🏠&nbsp;</span>emoji.casa
+            </h1>
+
+            <span className="text-lg text-slate-400">
+              Your home for quick and easy emoji search.
+            </span>
+          </header>
+
+          <main className="w-full">
+            <EmojiForm />
+          </main>
+        </div>
+      </div>
+
+      <footer className="sticky top-[100vh] bg-slate-800 bg-opacity-40 text-center px-6 py-4 md:px-12">
+        <p className="text-lg text-slate-400">
+          Built with{' '}
+          <span aria-label="love" role="img">
+            💌
+          </span>{' '}
+          by{' '}
+          <a
+            className="underline text-indigo-300"
+            href="https://nicklemmon.com"
+            target="_blank"
+            rel="noreferrer noopener"
+          >
+            <span>Nick Lemmon</span>
+            <span className="sr-only">&nbsp;(Opens in a new tab)</span>
+          </a>
+          <span>, all rights reserved {new Date().getFullYear()}</span>
+        </p>
+      </footer>
+    </div>
+  )
+}
+
 function EmojiForm() {
+  const [searchParams, setSearchParams] = useSearchParams()
+  const searchStr = searchParams.get('search') ?? ''
   const input = useRef<HTMLInputElement>(null)
   const inputId = useId()
   const helpId = useId()
   const { status, data } = useEmojiListQuery()
-  const [searchStr, setSearchStr] = useState<string | undefined>(undefined)
 
   const handleChange = (e: React.FormEvent<HTMLInputElement>) => {
-    setSearchStr((e.target as HTMLInputElement).value)
+    setSearchParams({ search: (e.target as HTMLInputElement).value })
   }
 
   const handleClearClick = () => {
-    setSearchStr(undefined)
+    searchParams.delete('search')
+    setSearchParams(searchParams)
 
     if (input?.current) {
       input.current.focus()
@@ -102,6 +107,7 @@ function EmojiForm() {
               'focus-visible:ring-4 focus-visible:ring-indigo-400 focus-visible:outline-none',
             )}
             ref={input}
+            defaultValue={searchStr}
             autoFocus
             type="text"
             placeholder="e.g., 'smile', 'cry', 'hands'"
@@ -124,8 +130,14 @@ function EmojiForm() {
         </div>
       </div>
 
+      {status === 'loading' && searchStr ? (
+        <p id={helpId} className="text-center text-lg text-slate-300">
+          Loading results for <span className="font-bold">"{searchStr}"...</span>.
+        </p>
+      ) : null}
+
       {status === 'success' && data && searchStr ? (
-        <EmojiResults data={data} searchStr={searchStr} />
+        <EmojiResults data={data} searchStr={searchStr ?? ''} />
       ) : null}
 
       {!searchStr ? (
