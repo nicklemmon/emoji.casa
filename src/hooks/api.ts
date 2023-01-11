@@ -4,6 +4,7 @@ import { getCategory, getCategoryList, getEmoji, getEmojiList } from '../helpers
 /** react-query hook for fetching emoji list */
 export function useEmojiListQuery(searchStr?: string) {
   return useQuery([`getEmojiList`, searchStr], ({ queryKey }) => getEmojiList(queryKey[1]), {
+    retry: false,
     refetchOnWindowFocus: false,
   })
 }

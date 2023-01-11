@@ -136,6 +136,15 @@ function EmojiForm() {
         </p>
       ) : null}
 
+      {status === 'error' && searchStr ? (
+        <div className="text-center text-lg text-slate-300 p-8 border border-red-400 bg-red-400 bg-opacity-10 rounded">
+          <p>
+            Unfortunately something went wrong<span aria-hidden="true">&nbsp;😥</span>. Please try
+            again later.
+          </p>
+        </div>
+      ) : null}
+
       {status === 'success' && data && searchStr ? (
         <EmojiResults data={data} searchStr={searchStr ?? ''} />
       ) : null}
