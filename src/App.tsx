@@ -1,23 +1,29 @@
-import { QueryClient, QueryClientProvider } from 'react-query'
 import React, { useEffect, useId, useRef, useState } from 'react'
 import { createBrowserRouter, useSearchParams, RouterProvider, Router } from 'react-router-dom'
+import * as emoji from 'emoji-api'
+import type { EmojiSubGroup, EmojiGroup } from 'emoji-api'
 import debounce from 'lodash-es/debounce.js'
 import { twMerge } from 'tailwind-merge'
 import { matchSorter } from 'match-sorter'
-import { useEmojiListQuery } from './hooks/api'
 import useCopyToClipboard from './hooks/clipboard'
-import { TEmoji } from './types/api'
 
-const queryClient = new QueryClient()
+const router = createBrowserRouter([{ path: '/', element: <LandingPage /> }])
+const allEmoji = emoji.all()
+const emojiList = allEmoji.map((emoji: emoji.Emoji) => {
+  return {
+    name: emoji.name,
+    emoji: emoji.emoji,
+    group: emoji.group,
+    subGroup: emoji.subGroup,
+  }
+})
+
+type Emoji = Pick<emoji.Emoji, 'name' | 'emoji' | 'group' | 'subGroup'>
+
+type EmojiList = typeof emojiList
 
 function App() {
-  return (
-    <QueryClientProvider client={queryClient}>
-      <RouterProvider
-        router={createBrowserRouter([{ path: '/', element: <LandingPage /> }])}
-      ></RouterProvider>
-    </QueryClientProvider>
-  )
+  return <RouterProvider router={router}></RouterProvider>
 }
 
 function LandingPage() {
@@ -70,7 +76,6 @@ function EmojiForm() {
   const input = useRef<HTMLInputElement>(null)
   const inputId = useId()
   const helpId = useId()
-  const { status, data } = useEmojiListQuery()
 
   const handleChange = (e: React.FormEvent<HTMLInputElement>) => {
     setSearchParams({ search: (e.target as HTMLInputElement).value })
@@ -86,7 +91,7 @@ function EmojiForm() {
     }
   }
 
-  const debouncedFn = debounce(handleChange, 150)
+  const debouncedFn = debounce(handleChange, 200)
 
   return (
     <div className="mx-auto w-full max-w-3xl p-3 md:p-8 flex flex-col gap-3">
@@ -145,9 +150,7 @@ function EmojiForm() {
         </div>
       ) : null}
 
-      {status === 'success' && data && searchStr ? (
-        <EmojiResults data={data} searchStr={searchStr ?? ''} />
-      ) : null}
+      {searchStr ? <EmojiResults emojiList={emojiList} searchStr={searchStr ?? ''} /> : null}
 
       {!searchStr ? (
         <p id={helpId} className="text-center text-lg text-slate-300">
@@ -158,18 +161,13 @@ function EmojiForm() {
   )
 }
 
-/** Certain emoji are repeated due to different versions of available emoji */
-const UNICODE_STR_BLOCKLIST = ['E4.0', 'E11.0', 'E13.0', 'E0.6', 'E1.0', 'E0.7', 'E5.0', 'E3.0']
-
 /** Filters emoji results by the search string and removes emoji by a lit of hard-coded sub strings */
-function filterEmojiResults(data: TEmoji[], searchStr: string) {
-  return matchSorter(data, searchStr, { keys: ['unicodeName'] }).filter(({ unicodeName }) => {
-    return !UNICODE_STR_BLOCKLIST.some((substring) => unicodeName.includes(substring))
-  })
+function filterEmojiResults(data: EmojiList, searchStr: string) {
+  return matchSorter(data, searchStr, { keys: ['name'] })
 }
 
-function EmojiResults({ data, searchStr }: { data: TEmoji[]; searchStr: string }) {
-  const filteredData = filterEmojiResults(data, searchStr)
+function EmojiResults({ emojiList, searchStr }: { emojiList: EmojiList; searchStr: string }) {
+  const filteredData = filterEmojiResults(emojiList, searchStr)
 
   return (
     <div className="flex flex-col gap-8">
@@ -181,7 +179,7 @@ function EmojiResults({ data, searchStr }: { data: TEmoji[]; searchStr: string }
       {filteredData.length > 0 ? (
         <ul className="flex flex-col gap-4">
           {filteredData.map((emoji) => (
-            <li className="w-full" key={emoji.slug}>
+            <li className="w-full" key={emoji.name}>
               <EmojiButton emoji={emoji} />
             </li>
           ))}
@@ -193,7 +191,7 @@ function EmojiResults({ data, searchStr }: { data: TEmoji[]; searchStr: string }
 
 const COPIED_MSG_DURATION = 1500
 
-function EmojiButton({ emoji }: { emoji: TEmoji }) {
+function EmojiButton({ emoji }: { emoji: Emoji }) {
   const [copied, setCopied] = useState(false)
   const [_value, copy] = useCopyToClipboard()
 
@@ -213,7 +211,7 @@ function EmojiButton({ emoji }: { emoji: TEmoji }) {
 
   return (
     <button
-      onClick={() => handleClick(emoji.character)}
+      onClick={() => handleClick(emoji.emoji)}
       className={twMerge(
         'group shadow h-14 w-full flex justify-between items-center gap-4 text-lg bg-indigo-900 border border-indigo-600 rounded transition-all',
         'hover:bg-indigo-800',
@@ -222,9 +220,9 @@ function EmojiButton({ emoji }: { emoji: TEmoji }) {
       )}
     >
       <span className="p-4 h-full flex items-center gap-4">
-        <span className="text-2xl">{emoji.character}</span>
+        <span className="text-2xl">{emoji.emoji}</span>
 
-        <span className="font-mono text-sm">{emoji.unicodeName}</span>
+        <span className="font-mono text-sm">{emoji.name}</span>
       </span>
 
       <span
@@ -234,7 +232,7 @@ function EmojiButton({ emoji }: { emoji: TEmoji }) {
         )}
       >
         <span className="text-sm w-12">{copied ? 'Copied!' : 'Copy'}</span>
-        <span className="sr-only">&nbsp;{emoji.unicodeName}</span>
+        <span className="sr-only">&nbsp;{emoji.name}</span>
       </span>
     </button>
   )
