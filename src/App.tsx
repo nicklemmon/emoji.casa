@@ -1,7 +1,6 @@
 import React, { useEffect, useId, useRef, useState } from 'react'
 import { createBrowserRouter, useSearchParams, RouterProvider, Router } from 'react-router-dom'
 import * as emoji from 'emoji-api'
-import type { EmojiSubGroup, EmojiGroup } from 'emoji-api'
 import debounce from 'lodash-es/debounce.js'
 import { twMerge } from 'tailwind-merge'
 import { matchSorter } from 'match-sorter'
@@ -91,7 +90,7 @@ function EmojiForm() {
     }
   }
 
-  const debouncedFn = debounce(handleChange, 200)
+  const debouncedFn = debounce(handleChange, 500)
 
   return (
     <div className="mx-auto w-full max-w-3xl p-3 md:p-8 flex flex-col gap-3">
