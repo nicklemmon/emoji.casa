@@ -1,5 +1,5 @@
 import React, { useEffect, useId, useRef, useState } from 'react'
-import { createBrowserRouter, useSearchParams, RouterProvider, Router } from 'react-router-dom'
+import { createBrowserRouter, useSearchParams, RouterProvider } from 'react-router-dom'
 import * as emoji from 'emoji-api'
 import debounce from 'lodash-es/debounce.js'
 import { twMerge } from 'tailwind-merge'
@@ -11,13 +11,18 @@ const allEmoji = emoji.all()
 const emojiList = allEmoji.map((emoji: emoji.Emoji) => {
   return {
     name: emoji.name,
+    formattedName: emoji.formattedName,
+    fancyName: emoji.fancyName,
     emoji: emoji.emoji,
     group: emoji.group,
     subGroup: emoji.subGroup,
   }
 })
 
-type Emoji = Pick<emoji.Emoji, 'name' | 'emoji' | 'group' | 'subGroup'>
+type Emoji = Pick<
+  emoji.Emoji,
+  'name' | 'fancyName' | 'formattedName' | 'emoji' | 'group' | 'subGroup'
+>
 
 type EmojiList = typeof emojiList
 
@@ -80,6 +85,8 @@ function EmojiForm() {
     setSearchParams({ search: (e.target as HTMLInputElement).value })
   }
 
+  const debouncedFn = debounce(handleChange, 500)
+
   const handleClearClick = () => {
     searchParams.delete('search')
     setSearchParams(searchParams)
@@ -89,8 +96,6 @@ function EmojiForm() {
       input.current.value = ''
     }
   }
-
-  const debouncedFn = debounce(handleChange, 500)
 
   return (
     <div className="mx-auto w-full max-w-3xl p-3 md:p-8 flex flex-col gap-3">
@@ -134,22 +139,7 @@ function EmojiForm() {
         </div>
       </div>
 
-      {status === 'loading' && searchStr ? (
-        <p id={helpId} className="text-center text-lg text-slate-300">
-          Loading results for <span className="font-bold">"{searchStr}"...</span>.
-        </p>
-      ) : null}
-
-      {status === 'error' && searchStr ? (
-        <div className="text-center text-lg text-slate-300 p-8 border border-red-400 bg-red-400 bg-opacity-10 rounded">
-          <p>
-            Unfortunately something went wrong<span aria-hidden="true">&nbsp;😥</span>. Please try
-            again later.
-          </p>
-        </div>
-      ) : null}
-
-      {searchStr ? <EmojiResults emojiList={emojiList} searchStr={searchStr ?? ''} /> : null}
+      {searchStr ? <EmojiResults emojiList={emojiList} searchStr={searchStr} /> : null}
 
       {!searchStr ? (
         <p id={helpId} className="text-center text-lg text-slate-300">
@@ -160,9 +150,17 @@ function EmojiForm() {
   )
 }
 
+/** Normalization function for user entry */
+function normalize(searchStr: string) {
+  return searchStr
+}
+
 /** Filters emoji results by the search string and removes emoji by a lit of hard-coded sub strings */
 function filterEmojiResults(data: EmojiList, searchStr: string) {
-  return matchSorter(data, searchStr, { keys: ['name'] })
+  console.log('searchStr', searchStr)
+  return matchSorter(data, normalize(searchStr), {
+    keys: ['name', 'fancyName', 'formattedName', 'group', 'subGroup'],
+  })
 }
 
 function EmojiResults({ emojiList, searchStr }: { emojiList: EmojiList; searchStr: string }) {
@@ -177,8 +175,8 @@ function EmojiResults({ emojiList, searchStr }: { emojiList: EmojiList; searchSt
 
       {filteredData.length > 0 ? (
         <ul className="flex flex-col gap-4">
-          {filteredData.map((emoji) => (
-            <li className="w-full" key={emoji.name}>
+          {filteredData.map((emoji, index) => (
+            <li className="w-full" key={`${emoji.name} ${index}`}>
               <EmojiButton emoji={emoji} />
             </li>
           ))}
