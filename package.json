@@ -9,7 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@vercel/analytics": "1.0.1",
+    "@vercel/analytics": "1.2.2",
     "emoji-api": "3.0.1",
     "lodash-es": "4.17.21",
     "match-sorter": "6.3.1",
