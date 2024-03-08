@@ -4,7 +4,13 @@ Your home for quick/easy emoji searching, copying, and pasting.
 
 ## Development
 
-```
+```bash
 yarn
-yarn dev
+yarn start
+```
+
+## Production
+
+```bash
+yarn build
 ```
