@@ -7,17 +7,21 @@ import { matchSorter } from 'match-sorter'
 import useCopyToClipboard from './hooks/clipboard'
 
 const router = createBrowserRouter([{ path: '/', element: <LandingPage /> }])
+
 const allEmoji = emoji.all()
-const emojiList = allEmoji.map((emoji: emoji.Emoji) => {
-  return {
-    name: emoji.name,
-    formattedName: emoji.formattedName,
-    fancyName: emoji.fancyName,
-    emoji: emoji.emoji,
-    group: emoji.group,
-    subGroup: emoji.subGroup,
-  }
-})
+
+const emojiList = allEmoji.map(
+  ({ name, formattedName, fancyName, emoji, group, subGroup }: emoji.Emoji) => {
+    return {
+      name,
+      formattedName,
+      fancyName,
+      emoji,
+      group,
+      subGroup,
+    }
+  },
+)
 
 type Emoji = Pick<
   emoji.Emoji,
@@ -35,14 +39,16 @@ function LandingPage() {
     <div className="min-h-screen">
       <div className="py-12 px-6 md:p-12">
         <div className="w-full flex items-center flex-col">
-          <header className="text-center">
-            <h1 className="font-bold font-secondary drop-shadow text-4xl md:text-5xl block text-center mb-2 -translate-x-3">
-              <span aria-hidden="true">🏠&nbsp;</span>emoji.casa
-            </h1>
+          <header className="">
+            <div className="text-center">
+              <h1 className="font-bold font-secondary drop-shadow text-4xl md:text-5xl block text-center mb-2 -translate-x-3">
+                <span aria-hidden="true">🏠&nbsp;</span>emoji.casa
+              </h1>
 
-            <span className="text-lg text-slate-400">
-              Your home for quick and easy emoji search.
-            </span>
+              <span className="text-lg text-slate-400">
+                Your home for quick and easy emoji search.
+              </span>
+            </div>
           </header>
 
           <main className="w-full">
@@ -74,6 +80,7 @@ function LandingPage() {
   )
 }
 
+/** Search form for showing and searching against list of all emojis */
 function EmojiForm() {
   const [searchParams, setSearchParams] = useSearchParams()
   const searchStr = searchParams.get('search') ?? ''
@@ -143,7 +150,7 @@ function EmojiForm() {
 
       {!searchStr ? (
         <p id={helpId} className="text-center text-lg text-slate-300">
-          No results yet. Type to search emoji by name.
+          No results yet. Type to search emoji by name or category
         </p>
       ) : null}
     </div>
@@ -216,10 +223,16 @@ function EmojiButton({ emoji }: { emoji: Emoji }) {
         'focus-visible:bg-indigo-800 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-indigo-500',
       )}
     >
-      <span className="p-4 h-full flex items-center gap-4">
+      <span className="p-4 h-full w-full flex items-center gap-4">
         <span className="text-2xl">{emoji.emoji}</span>
 
-        <span className="font-mono text-sm">{emoji.name}</span>
+        <span className="flex justify-between items-center gap-4 w-full">
+          <span className="font-mono text-sm">{emoji.name}</span>
+
+          <span className="text-sm bg-indigo-100 semibold rounded-sm text-indigo-950 px-2 py-1">
+            {emoji.group}
+          </span>
+        </span>
       </span>
 
       <span
