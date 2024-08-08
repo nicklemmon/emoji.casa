@@ -29,8 +29,8 @@
     "prettier": "3.2.5",
     "tailwindcss": "3.4.3",
     "typescript": "5.5.4",
-    "vercel": "35.2.3"
-    "vite": "5.2.12",
+    "vercel": "35.2.3",
+    "vite": "5.4.0",
     "vite-plugin-compression": "0.5.1"
   }
 }
