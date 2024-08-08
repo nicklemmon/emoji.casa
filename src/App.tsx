@@ -229,7 +229,7 @@ function EmojiButton({ emoji }: { emoji: Emoji }) {
         <span className="flex justify-between items-center gap-4 w-full">
           <span className="font-mono text-sm">{emoji.name}</span>
 
-          <span className="text-sm bg-indigo-100 semibold rounded-sm text-indigo-950 px-2 py-1">
+          <span className="text-sm bg-indigo-950 semibold rounded-full text-indigo-100 px-4 py-1">
             {emoji.group}
           </span>
         </span>
