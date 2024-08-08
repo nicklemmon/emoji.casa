@@ -5,12 +5,12 @@ Your home for quick/easy emoji searching, copying, and pasting.
 ## Development
 
 ```bash
-yarn
-yarn start
+npm i
+npm run start
 ```
 
 ## Production
 
 ```bash
-yarn build
+npm run build
 ```
