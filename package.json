@@ -16,7 +16,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "6.26.0",
-    "tailwind-merge": "2.4.0"
+    "tailwind-merge": "2.5.5"
   },
   "devDependencies": {
     "@types/lodash-es": "4.17.12",
