@@ -4,7 +4,7 @@ import * as emoji from 'emoji-api'
 import debounce from 'lodash-es/debounce.js'
 import { twMerge } from 'tailwind-merge'
 import { matchSorter } from 'match-sorter'
-import useCopyToClipboard from './hooks/clipboard'
+import useCopyToClipboard from './hooks/clipboard.js'
 
 const router = createBrowserRouter([{ path: '/', element: <LandingPage /> }])
 
