@@ -174,7 +174,7 @@ function EmojiResults({ emojiList, searchStr }: { emojiList: EmojiList; searchSt
   const filteredData = filterEmojiResults(emojiList, searchStr)
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-8" data-testid="emoji-results">
       <p className="text-center text-lg text-slate-300">
         {filteredData.length === 0 ? 'No results found for' : 'Results for'}
         &nbsp;<span className="font-bold">"{searchStr}"</span>.
@@ -216,6 +216,7 @@ function EmojiButton({ emoji }: { emoji: Emoji }) {
   return (
     <button
       onClick={() => handleClick(emoji.emoji)}
+      data-testid={`emoji-button-${emoji.emoji}`}
       className={twMerge(
         'group shadow h-14 w-full flex justify-between items-center gap-4 text-lg bg-indigo-900 border border-indigo-600 rounded transition-all',
         'hover:bg-indigo-800',
